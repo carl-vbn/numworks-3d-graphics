@@ -41,6 +41,7 @@ namespace Raymarching {
     float cubeSD(float3 pos, float3 cubePos, float3 cubeSize);
 
     float distanceFromGeometry(float3 pos);
+    float3 estimateNormal(float3 pos);
     RaymarchHit rayMarch(float3 origin, float3 direction);
 
     void drawLine(float3 pos1, float3 pos2, KDColor color);

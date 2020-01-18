@@ -23,6 +23,7 @@ struct float3 {
 
 float distance(float3 pos1, float3 pos2);
 float length(float3 vector);
+float dot(float3 a, float3 b);
 float max(float a, float b);
 float min(float a, float b);
 float lerp(float a, float b, float alpha);

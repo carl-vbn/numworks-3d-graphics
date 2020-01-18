@@ -8,8 +8,9 @@ namespace Raymarching
     constexpr int8_t MAX_STEPS = 20;
     constexpr int8_t FOV = 60;
     constexpr int16_t SUBRECT_SIZE = 150;
-    constexpr int16_t YAW_RAYS = 100;
+    constexpr int16_t YAW_RAYS = 250;
     constexpr float SURFACE_DIST = 0.5;
+    constexpr float EPSILON = 0.01;
 
     Sphere * loadedSpheres;
     int loadedSphereCount;
@@ -26,15 +27,27 @@ namespace Raymarching
     }
 
     float distanceFromGeometry(float3 pos) {
-        return sphereSD(pos, float3(160,150,0), 10);
+        return sphereSD(pos, float3(160,150,0), 10); // Sphere pos
     }
 
+    // Currently unused
     void loadScene(int scene) {
         if (scene == 0) {
             Sphere sphere = Sphere(0,1,6,10,1,0,0);
             loadedSpheres = &sphere;
             loadedSphereCount = 1;
         }
+    }
+
+    float3 estimateNormal(float3 pos) {
+        float d = distanceFromGeometry(pos);
+        
+        float3 normal = difference(float3(d,d,d), float3(
+            distanceFromGeometry(difference(pos, float3(EPSILON,0,0))),
+            distanceFromGeometry(difference(pos, float3(0,EPSILON,0))),
+            distanceFromGeometry(difference(pos, float3(0,0,EPSILON)))));
+        
+        return normalize(normal);
     }
 
     RaymarchHit rayMarch(float3 origin, float3 direction) {
@@ -88,6 +101,7 @@ namespace Raymarching
             *(pixelBuffer+i) = KDColorBlack;
 
         float3 camPos = float3(160,80,-3);
+        float3 lightPos = float3(180,80,-20);
         float deg2rad = M_PI / 180;
         float ratio = (float)rect.height()/rect.width();
         int V_FOV = FOV * ratio;
@@ -98,10 +112,10 @@ namespace Raymarching
                 int u = rect.x()+(int)((float)i/YAW_RAYS*rect.width());
                 int v = rect.y()+(int)((float)j/PITCH_RAYS*rect.height());
 
-                if (!subrect.contains(KDPoint(u,v)))
+                if (!((u >= subrect.x()-2 && u <= subrect.right()+2 && v >= subrect.y()-2 && v <= subrect.bottom()+2)))
                     continue;
 
-                KDRect square = subrect.intersectedWith(KDRect(u,v,rect.width()/YAW_RAYS, rect.height()/PITCH_RAYS)); // Basically a big pixel (approaches 1 when the amount of rays increases)
+                KDRect square = subrect.intersectedWith(KDRect(u,v,rect.width()/YAW_RAYS+1, rect.height()/PITCH_RAYS+1)); // Basically a big pixel (approaches 1 when the amount of rays increases)
                 
                 if (subrect.containsRect(square)) {
                     float yaw = (float)i/YAW_RAYS*FOV-FOV/2;
@@ -111,10 +125,14 @@ namespace Raymarching
 
                     RaymarchHit hit = rayMarch(camPos, rayDir);
                     if (hit.hasHit) {
+                        float3 lightVec = normalize(difference(lightPos, hit.hitPosition));
+                        float l = dot(lightVec, estimateNormal(hit.hitPosition));
+                        if (l > 1) l = 1; if (l < 0) l = 0; // Clamp l between 0 and 1
+                        KDColor color = KDColor::RGB888(l*255,0,0);
                         for (int m = 0; m<square.width(); m++) {
                             for (int n = 0; n<square.height(); n++) {
                                 int offset = (square.y()-subrect.y()+n)*subrect.width()+(square.x()-subrect.x()+m);
-                                *(pixelBuffer+offset) = hit.hasHit ? hit.hitColor : KDColorYellow;
+                                *(pixelBuffer+offset) = color;
                             }
                         }
                     }
