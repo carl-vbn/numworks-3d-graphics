@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "chrono": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "type_traits": "cpp",
+        "stdio.h": "c"
+    }
+}
