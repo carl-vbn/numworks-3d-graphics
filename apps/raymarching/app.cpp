@@ -37,7 +37,7 @@ void App::Snapshot::tidy() {
 
 App::App(Snapshot * snapshot) :
   Shared::InputEventHandlerDelegateApp(snapshot, &m_viewController),
-  m_pythonHeap{},
+  m_raymarchingHeap{},
   m_viewController(nullptr, &m_modalViewController)
 {
 }
