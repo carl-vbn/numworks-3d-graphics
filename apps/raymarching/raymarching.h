@@ -62,9 +62,12 @@ namespace Raymarching {
             ~RaymarchingScene();
             void render(KDRect rect, bool fast=false);
             void renderSubRect(KDRect rect, KDRect subrect, bool fast=false);
+            void translateCamera(float3 vec);
+            void rotateCamera(float angle);
 
         protected:
             float3 m_camPos;
+            float m_camYaw;
             float3 m_lightPos;
             Sphere * m_loadedSpheres;
             int m_loadedSphereCount;

@@ -5,14 +5,18 @@
 #include <escher/stack_view.h>
 #include <escher/palette.h>
 #include <ion/display.h>
+#include "raymarching.h"
 
 class RaymarchingViewController : public ViewController {
 public:
   RaymarchingViewController(Responder * parentResponder, ViewController * rootViewController);
+  ~RaymarchingViewController();
 
   View * view() override;
   const char * title() override;
   bool handleEvent(Ion::Events::Event event) override;
+
+  Raymarching::RaymarchingScene * m_scene;
 
 private:
   class Frame {

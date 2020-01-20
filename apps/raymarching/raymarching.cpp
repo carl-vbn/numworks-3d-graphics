@@ -61,6 +61,8 @@ namespace Raymarching
             m_camPos = float3(160,80,-3);
             m_lightPos = float3(140,100,-20);
         }
+        
+        m_camYaw = 0;
     }
 
     RaymarchingScene::~RaymarchingScene() {
@@ -156,7 +158,7 @@ namespace Raymarching
                 KDRect square = subrect.intersectedWith(KDRect(u,v,rect.width()/yawRays+1, rect.height()/pitchRays+1)); // Basically a big pixel (approaches 1 when the amount of rays increases)
                 
                 if (subrect.containsRect(square)) {
-                    float yaw = (float)i/yawRays*FOV-FOV/2;
+                    float yaw = (float)i/yawRays*FOV-FOV/2+m_camYaw;
                     float pitch = (float)j/pitchRays*V_FOV-V_FOV/2;
 
                     float3 rayDir = float3(sin(yaw*DEG_2_RAD), cos(yaw*DEG_2_RAD), sin(pitch*DEG_2_RAD));
@@ -189,6 +191,14 @@ namespace Raymarching
         Ion::Display::pushRect(subrect, pixelBuffer);
 
         delete[] pixelBuffer;
+    }
+
+    void RaymarchingScene::translateCamera(float3 vector) {
+        m_camPos = sum(m_camPos, vector);
+    }
+
+    void RaymarchingScene::rotateCamera(float angle) {
+        m_camYaw += angle;
     }
 
 }

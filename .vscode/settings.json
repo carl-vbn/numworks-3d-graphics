@@ -6,6 +6,7 @@
         "cmath": "cpp",
         "*.tcc": "cpp",
         "type_traits": "cpp",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "new": "cpp"
     }
 }
