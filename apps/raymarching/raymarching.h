@@ -19,21 +19,36 @@ namespace Raymarching {
         float3 position;
         float radius;
         KDColor color;
+        bool checkerPattern;
 
         Sphere() {
-            
+            checkerPattern = true;
         }
 
         Sphere(float3 pos, float r, KDColor c) {
             position = pos;
             radius = r;
             color = c;
+            checkerPattern = false;
+        }
+
+        Sphere(float3 pos, float r) {
+            position = pos;
+            radius = r;
+            checkerPattern = true;
         }
 
         Sphere(float px, float py, float pz, float r, KDColor c) {
             position = float3(px,py,pz);
             radius = r; 
             color = c;
+            checkerPattern = false;
+        }
+
+        Sphere(float px, float py, float pz, float r) {
+            position = float3(px,py,pz);
+            radius = r; 
+            checkerPattern = true;
         }
 
     };
@@ -54,7 +69,7 @@ namespace Raymarching {
             Sphere * m_loadedSpheres;
             int m_loadedSphereCount;
 
-            float distanceFromGeometry(float3 pos, KDColor * nearestColor = nullptr);
+            float distanceFromGeometry(float3 pos, Sphere * nearestSphere = nullptr);
             float3 estimateNormal(float3 pos);
             RaymarchHit rayMarch(float3 origin, float3 direction);
 

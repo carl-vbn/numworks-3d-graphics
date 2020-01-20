@@ -33,4 +33,7 @@ float3 sum(float3 a, float3 b);
 float3 abs(float3 x);
 float3 normalize(float3 vec);
 
+/* Used to texture an object with a checkerboard pattern. Returns true every other cell */
+bool checkerPattern(int x, int y, int size);
+
 #endif

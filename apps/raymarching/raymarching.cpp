@@ -1,6 +1,5 @@
 #include "raymarching.h"
 #include "ion/led.h"
-#include <kandinsky/framebuffer.h>
 
 namespace Raymarching
 {
@@ -11,6 +10,8 @@ namespace Raymarching
     constexpr int16_t RESOLUTION = 240; // Between 1 and 240, where 240 is the highest resolution
     constexpr float SURFACE_DIST = 0.5;
     constexpr float EPSILON = 0.01;
+    constexpr float DEG_2_RAD = M_PI / 180;
+    constexpr float RAD_2_DEG = 180 / M_PI;
 
     float sphereSD(float3 pos, float3 spherePos, float sphereRadius) {
         return distance(pos, spherePos) - sphereRadius;
@@ -23,39 +24,38 @@ namespace Raymarching
         return ud+n;
     }
 
-    float RaymarchingScene::distanceFromGeometry(float3 pos, KDColor * nearestColor) {
+    float RaymarchingScene::distanceFromGeometry(float3 pos, Sphere * nearestSpherePtr) {
         if (m_loadedSphereCount < 1) {
-            if (nearestColor != nullptr) *nearestColor = KDColorPurple;
             return 0;
         }
 
 
-        KDColor col = KDColorPurple;
+        Sphere nearestSphere;
         float minDist = RENDER_DISTANCE;
         for (int i = 0; i<m_loadedSphereCount; i++) {
             Sphere sphere = *(m_loadedSpheres+i);
             float dist = sphereSD(pos, sphere.position, sphere.radius);
             if (dist < minDist) {
                 minDist = dist;
-                col = sphere.color;
+                nearestSphere = sphere;
             }
         }
         
-        if (nearestColor != nullptr) {
-            *nearestColor = col;
+        if (nearestSpherePtr != nullptr) {
+            *nearestSpherePtr = nearestSphere;
         }
         return minDist;
     }
 
     RaymarchingScene::RaymarchingScene(int scene) {
         if (scene == 0) {
-            m_loadedSpheres = new Sphere[3]{Sphere(135,150,0, 10, KDColorRed),Sphere(160,150,0, 10, KDColorGreen),Sphere(185,150,0, 10, KDColorBlue)};
+            m_loadedSpheres = new Sphere[3]{Sphere(135,150,0, 10, KDColorPurple),Sphere(160,150,0, 10),Sphere(185,150,0, 10, KDColorRed)};
             m_loadedSphereCount = 3;
 
             m_camPos = float3(160,80,-3);
             m_lightPos = float3(180,80,-20);
         } else if (scene == 1) {
-            m_loadedSpheres = new Sphere[2]{Sphere(135,170,0, 20, KDColorRed),Sphere(185,170,0, 20, KDColorBlue)};
+            m_loadedSpheres = new Sphere[2]{Sphere(135,170,0, 20, KDColorGreen),Sphere(185,170,0, 20, KDColorBlue)};
             m_loadedSphereCount = 2;
 
             m_camPos = float3(160,80,-3);
@@ -83,12 +83,23 @@ namespace Raymarching
         float3 p = origin;
         int8_t steps = 0;
         while (steps < MAX_STEPS && distance(origin, p) < RENDER_DISTANCE) {
-            KDColor color;
-            d = distanceFromGeometry(p, &color);
+            Sphere nearestSphere;
+            d = distanceFromGeometry(p, &nearestSphere);
             p = sum(p, multiply(direction, d));
 
             if (d <= SURFACE_DIST) {
-                return RaymarchHit(true, p, color);
+                if (nearestSphere.checkerPattern) {
+                    float angle1 = atan2(p.y-nearestSphere.position.y,p.x-nearestSphere.position.x)*RAD_2_DEG;
+                    float angle2 = atan2(p.y-nearestSphere.position.y,p.z-nearestSphere.position.z)*RAD_2_DEG;
+                    if (angle1 < 0) angle1 = -angle1;
+                    if (angle2 < 0) angle2 = -angle2;
+                    KDColor checkerColor = KDColorWhite;
+                    if (checkerPattern(angle1, angle2, 50))
+                        checkerColor = KDColorGray;
+                    return RaymarchHit(true, p, checkerColor);
+                } else {
+                    return RaymarchHit(true, p, nearestSphere.color);
+                }
             }
 
             steps++;
@@ -129,7 +140,6 @@ namespace Raymarching
         for (int i = 0; i<subrect.width()*subrect.height(); i++)
             *(pixelBuffer+i) = KDColorBlack;
 
-        float deg2rad = M_PI / 180;
         float ratio = (float)rect.height()/rect.width();
         int V_FOV = FOV * ratio;
         int yawRays = RESOLUTION * (fast ? 0.2 : 1);
@@ -149,7 +159,7 @@ namespace Raymarching
                     float yaw = (float)i/yawRays*FOV-FOV/2;
                     float pitch = (float)j/pitchRays*V_FOV-V_FOV/2;
 
-                    float3 rayDir = float3(sin(yaw*deg2rad), cos(yaw*deg2rad), sin(pitch*deg2rad));
+                    float3 rayDir = float3(sin(yaw*DEG_2_RAD), cos(yaw*DEG_2_RAD), sin(pitch*DEG_2_RAD));
 
                     
                     RaymarchHit hit = rayMarch(m_camPos, rayDir);

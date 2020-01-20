@@ -71,3 +71,8 @@ float3 multiply(float3 vec, float scalar) {
 float dot(float3 a, float3 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
+bool checkerPattern(int x, int y, int size) {
+
+    return (x % size*2 <size)^(y % size*2 <size);
+}
