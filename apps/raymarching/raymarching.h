@@ -18,32 +18,47 @@ namespace Raymarching {
     struct Sphere {
         float3 position;
         float radius;
-        float3 color;
+        KDColor color;
 
-        Sphere(float3 pos, float r, float3 c) {
+        Sphere() {
+            
+        }
+
+        Sphere(float3 pos, float r, KDColor c) {
             position = pos;
             radius = r;
             color = c;
         }
 
-        Sphere(float px, float py, float pz, float r, float cr, float cg, float cb) {
+        Sphere(float px, float py, float pz, float r, KDColor c) {
             position = float3(px,py,pz);
             radius = r; 
-            color = float3(cr,cg,cb);
+            color = c;
         }
-    };
 
-    void loadScene(int scene);
-    void render(KDRect rect);
-    void renderSubRect(KDRect rect, KDRect subrect);
+    };
 
     float sphereSD(float3 pos, float3 spherePos, float sphereRadius);
     float cubeSD(float3 pos, float3 cubePos, float3 cubeSize);
+    
+    class RaymarchingScene  {
+        public:
+            RaymarchingScene(int scene);
+            ~RaymarchingScene();
+            void render(KDRect rect, bool fast=false);
+            void renderSubRect(KDRect rect, KDRect subrect, bool fast=false);
 
-    float distanceFromGeometry(float3 pos);
-    float3 estimateNormal(float3 pos);
-    RaymarchHit rayMarch(float3 origin, float3 direction);
+        protected:
+            float3 m_camPos;
+            float3 m_lightPos;
+            Sphere * m_loadedSpheres;
+            int m_loadedSphereCount;
 
+            float distanceFromGeometry(float3 pos, KDColor * nearestColor = nullptr);
+            float3 estimateNormal(float3 pos);
+            RaymarchHit rayMarch(float3 origin, float3 direction);
+
+    };
     void drawLine(float3 pos1, float3 pos2, KDColor color);
     void drawCircle(float3 pos, float radius, KDColor color);
 }
