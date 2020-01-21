@@ -1,12 +1,10 @@
 #include "raymarching.h"
-#include "ion/led.h"
 
 namespace Raymarching
 {
-    constexpr int16_t RENDER_DISTANCE = 400;
+    constexpr int16_t RENDER_DISTANCE = 200;
     constexpr int8_t MAX_STEPS = 20;
     constexpr int8_t FOV = 60;
-    constexpr int16_t SUBRECT_SIZE = 150;
     constexpr int16_t RESOLUTION = 240; // Between 1 and 240, where 240 is the highest resolution
     constexpr float SURFACE_DIST = 0.5;
     constexpr float EPSILON = 0.01;
@@ -84,10 +82,12 @@ namespace Raymarching
         float d = SURFACE_DIST+1;
         float3 p = origin;
         int8_t steps = 0;
-        while (steps < MAX_STEPS && distance(origin, p) < RENDER_DISTANCE) {
+        float marchedDistance = 0;
+        while (steps < MAX_STEPS && marchedDistance < RENDER_DISTANCE) {
             Sphere nearestSphere;
             d = distanceFromGeometry(p, &nearestSphere);
             p = sum(p, multiply(direction, d));
+            marchedDistance+= d;
 
             if (d <= SURFACE_DIST) {
                 if (nearestSphere.checkerPattern) {
@@ -127,21 +127,8 @@ namespace Raymarching
     }
 
     void RaymarchingScene::render(KDRect rect, bool fast) {
-        for (int i = rect.x(); i<rect.x()+rect.width(); i+=SUBRECT_SIZE) {
-            for (int j = rect.y(); j<rect.y()+rect.height(); j+=SUBRECT_SIZE) {
-                KDRect subRect = rect.intersectedWith(KDRect(i,j,SUBRECT_SIZE,SUBRECT_SIZE));
-                renderSubRect(rect, subRect, fast);
-            }
-        }
-    }
-    
-
-   void RaymarchingScene::renderSubRect(KDRect rect, KDRect subrect, bool fast) {
-        KDColor * pixelBuffer = new KDColor[subrect.width()*subrect.height()];
-
-        for (int i = 0; i<subrect.width()*subrect.height(); i++)
-            *(pixelBuffer+i) = KDColorBlack;
-
+        if (!fast)
+            Ion::Display::pushRectUniform(rect, KDColorWhite);
         float ratio = (float)rect.height()/rect.width();
         int V_FOV = FOV * ratio;
         int yawRays = RESOLUTION * (fast ? 0.2 : 1);
@@ -152,45 +139,31 @@ namespace Raymarching
                 int u = rect.x()+(int)((float)i/yawRays*rect.width());
                 int v = rect.y()+(int)((float)j/pitchRays*rect.height());
 
-                if (!((u >= subrect.x()-2 && u <= subrect.right()+2 && v >= subrect.y()-2 && v <= subrect.bottom()+2)))
-                    continue;
-
-                KDRect square = subrect.intersectedWith(KDRect(u,v,rect.width()/yawRays+1, rect.height()/pitchRays+1)); // Basically a big pixel (approaches 1 when the amount of rays increases)
+                KDRect square = KDRect(u,v,rect.width()/yawRays+1, rect.height()/pitchRays+1);
                 
-                if (subrect.containsRect(square)) {
-                    float yaw = (float)i/yawRays*FOV-FOV/2+m_camYaw;
-                    float pitch = (float)j/pitchRays*V_FOV-V_FOV/2;
+                float yaw = (float)i/yawRays*FOV-FOV/2+m_camYaw;
+                float pitch = (float)j/pitchRays*V_FOV-V_FOV/2;
 
-                    float3 rayDir = float3(sin(yaw*DEG_2_RAD), cos(yaw*DEG_2_RAD), sin(pitch*DEG_2_RAD));
+                float3 rayDir = float3(sin(yaw*DEG_2_RAD), cos(yaw*DEG_2_RAD), sin(pitch*DEG_2_RAD));
 
-                    
-                    RaymarchHit hit = rayMarch(m_camPos, rayDir);
-                    if (hit.hasHit) {
-                        KDColor pixelColor;
-                        if (fast) {
-                            pixelColor = hit.hitColor;
-                        } else {
-                            float3 lightVec = normalize(difference(m_lightPos, hit.hitPosition));
-                            float l = dot(lightVec, estimateNormal(hit.hitPosition));
-                            if (l > 1) l = 1; if (l < 0) l = 0; // Clamp l between 0 and 1
-                            pixelColor = KDColor::RGB888(hit.hitColor.red()*l,hit.hitColor.green()*l,hit.hitColor.blue()*l);
-                        }
-                        for (int m = 0; m<square.width(); m++) {
-                            for (int n = 0; n<square.height(); n++) {
-                                int offset = (square.y()-subrect.y()+n)*subrect.width()+(square.x()-subrect.x()+m);
-                                *(pixelBuffer+offset) = pixelColor;
-                            }
-                        }
+                
+                RaymarchHit hit = rayMarch(m_camPos, rayDir);
+                if (hit.hasHit) {
+                    KDColor pixelColor;
+                    if (fast) {
+                        pixelColor = hit.hitColor;
+                    } else {
+                        float3 lightVec = normalize(difference(m_lightPos, hit.hitPosition));
+                        float l = dot(lightVec, estimateNormal(hit.hitPosition));
+                        if (l > 1) l = 1; if (l < 0) l = 0; // Clamp l between 0 and 1
+                        pixelColor = KDColor::RGB888(hit.hitColor.red()*l,hit.hitColor.green()*l,hit.hitColor.blue()*l);
                     }
-                    
+                    Ion::Display::pushRectUniform(square, pixelColor);
+                } else {
+                    Ion::Display::pushRectUniform(square, KDColorBlack);
                 }
-
             }
         }
-
-        Ion::Display::pushRect(subrect, pixelBuffer);
-
-        delete[] pixelBuffer;
     }
 
     void RaymarchingScene::translateCamera(float3 vector) {

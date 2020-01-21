@@ -61,7 +61,6 @@ namespace Raymarching {
             RaymarchingScene(int scene);
             ~RaymarchingScene();
             void render(KDRect rect, bool fast=false);
-            void renderSubRect(KDRect rect, KDRect subrect, bool fast=false);
             void translateCamera(float3 vec);
             void rotateCamera(float angle);
 
