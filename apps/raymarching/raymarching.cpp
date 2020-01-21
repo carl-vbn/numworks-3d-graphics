@@ -201,4 +201,8 @@ namespace Raymarching
         m_camYaw += angle;
     }
 
+    float3 RaymarchingScene::getCameraVector(float angleOffset) {
+        return float3(sin((m_camYaw+angleOffset)*DEG_2_RAD), cos((m_camYaw+angleOffset)*DEG_2_RAD), 0);
+    }
+
 }

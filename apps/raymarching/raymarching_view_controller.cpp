@@ -1,5 +1,6 @@
 #include "raymarching_view_controller.h"
 #include <apps/i18n.h>
+#include "math_utils.h"
 
 RaymarchingViewController::RaymarchingView::RaymarchingView()
 {
@@ -42,16 +43,16 @@ bool RaymarchingViewController::handleEvent(Ion::Events::Event event) {
   } else if (event == Ion::Events::EXE || event == Ion::Events::OK) {
     m_scene->render(rect, false);
   } else if(event == Ion::Events::Right) {
-    m_scene->translateCamera(float3(10,0,0));
+    m_scene->translateCamera(multiply(m_scene->getCameraVector(90),10));
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Left) {
-    m_scene->translateCamera(float3(-10,0,0));
+    m_scene->translateCamera(multiply(m_scene->getCameraVector(-90),10));
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Up) {
-    m_scene->translateCamera(float3(0,10,0));
+    m_scene->translateCamera(multiply(m_scene->getCameraVector(),10));
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Down) {
-    m_scene->translateCamera(float3(0,-10,0));
+    m_scene->translateCamera(multiply(m_scene->getCameraVector(),-10));
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Exp) {
     m_scene->rotateCamera(-10);
