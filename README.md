@@ -13,7 +13,7 @@ Currently, Ray marching is the only available rendering engine. To use it, simpl
 To start the high-res render of the scene, press `OK`or `EXE`. **Warning:** Rendering takes a while, and can not be interrupted! You will have to wait a bit.
 Use `1` and `2` to switch between the two currently implemented scenes. 
 
-**Screenshots**
+**Screenshots**  
 ![Screenshot of the App on the Home screen](docs/raymarching_screenshots/rm_capture_1.png)  
 ![Screenshot of the first scene](docs/raymarching_screenshots/rm_capture_2.png)  
 ![Screenshot of the second scene](docs/raymarching_screenshots/rm_capture_3.png)  
