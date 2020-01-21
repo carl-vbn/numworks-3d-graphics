@@ -11,9 +11,15 @@ To install this mod on your calculator, follow the instructions described on Num
 ### Ray marching
 Currently, Ray marching is the only available rendering engine. To use it, simply enter the `Raymarching` app from the Home screen. You will see a fast preview of the scene. Use the arrows to navigate through the scene and the `A`and `C` keys to rotate the camera.
 To start the high-res render of the scene, press `OK`or `EXE`. **Warning:** Rendering takes a while, and can not be interrupted! You will have to wait a bit.
+Use `1` and `2` to switch between the two currently implemented scenes. 
+
+**Screenshots**
+![Screenshot of the App on the Home screen](docs/raymarching_screenshots/rm_capture_1.png)  
+![Screenshot of the first scene](docs/raymarching_screenshots/rm_capture_2.png)  
+![Screenshot of the second scene](docs/raymarching_screenshots/rm_capture_3.png)  
 
 ## License
 
 NumWorks Epsilon is released under a [CC BY-NC-SA License](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode). NumWorks is a registered trademark. All original Epsilon code belongs to NumWorks and therefore follows their license described [here](https://github.com/numworks/epsilon/blob/master/LICENSE). 
-All modifications made to the original code by myself and other contributors of the *NumWorks 3D Graphics* project follows the [MIT License](https://en.wikipedia.org/wiki/MIT_License). The term "original code" designates all code that has been written by NumWorks or any other contributor of the *Epsilon* project.
+The term "original code" designates all code that has been written by NumWorks or any other contributor of the *Epsilon* project.
 
