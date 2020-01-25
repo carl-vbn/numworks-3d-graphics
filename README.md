@@ -1,11 +1,19 @@
 
 
+
 # NumWorks 3D Graphics
 This is an [Epsilon](https://github.com/numworks/epsilon) mod that showcases 3D Rendering on the NumWorks calculator.
 This project is an unofficial mod and is **not** maintained by NumWorks.
 
 ## Installation
 To install this mod on your calculator, follow the instructions described on NumWorks' [Installing the SDK](https://www.numworks.com/resources/engineering/software/build/) page but clone this repository instead of [`numworks/epsilon`](https://github.com/numworks/epsilon).
+
+To install this mod alongside another epsilon fork, simply copy the `raymarching` folder from this repository into the `apps`folder of that fork, and flash the OS like you would normally do but make sure to add `raymarching` to the `EPSILON_APPS` variable when compiling. For example:
+
+    make [PLATFORM=device|simulator] EPSILON_APPS='calculation graph code [other_apps] raymarching settings'
+
+If you run out of space on your calculator (which is indicated by an error when flashing or by the calculator not turning on), you have to exclude some apps from the build (once again by  modifying the `EPSILON_APPS` variable like shown above.
+
 
 ## Currently available app(s)
 ### Ray marching

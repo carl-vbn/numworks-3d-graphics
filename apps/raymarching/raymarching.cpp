@@ -11,6 +11,8 @@ namespace Raymarching
     constexpr float DEG_2_RAD = M_PI / 180;
     constexpr float RAD_2_DEG = 180 / M_PI;
 
+    constexpr KDColor KDColorGray = KDColor::RGB24(0x666666);
+
     float sphereSD(float3 pos, float3 spherePos, float sphereRadius) {
         return distance(pos, spherePos) - sphereRadius;
     }
