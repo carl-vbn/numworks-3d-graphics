@@ -63,6 +63,7 @@ namespace Raymarching
         }
         
         m_camYaw = 0;
+        m_camPitch = 0;
     }
 
     RaymarchingScene::~RaymarchingScene() {
@@ -77,7 +78,8 @@ namespace Raymarching
             distanceFromGeometry(difference(pos, float3(0,EPSILON,0))),
             distanceFromGeometry(difference(pos, float3(0,0,EPSILON)))));
         
-        return normalize(normal);
+        normalize(&normal);
+        return normal;
     }
 
     RaymarchHit RaymarchingScene::rayMarch(float3 origin, float3 direction) {
@@ -88,7 +90,7 @@ namespace Raymarching
         while (steps < MAX_STEPS && marchedDistance < RENDER_DISTANCE) {
             Sphere nearestSphere;
             d = distanceFromGeometry(p, &nearestSphere);
-            p = sum(p, multiply(direction, d));
+            add(&p, multiply(direction, d));
             marchedDistance+= d;
 
             if (d <= SURFACE_DIST) {
@@ -144,7 +146,7 @@ namespace Raymarching
                 KDRect square = KDRect(u,v,rect.width()/yawRays+1, rect.height()/pitchRays+1);
                 
                 float yaw = (float)i/yawRays*FOV-FOV/2+m_camYaw;
-                float pitch = (float)j/pitchRays*V_FOV-V_FOV/2;
+                float pitch = (float)j/pitchRays*V_FOV-V_FOV/2+m_camPitch;
 
                 float3 rayDir = float3(sin(yaw*DEG_2_RAD), cos(yaw*DEG_2_RAD), sin(pitch*DEG_2_RAD));
 
@@ -155,7 +157,8 @@ namespace Raymarching
                     if (fast) {
                         pixelColor = hit.hitColor;
                     } else {
-                        float3 lightVec = normalize(difference(m_lightPos, hit.hitPosition));
+                        float3 lightVec = difference(m_lightPos, hit.hitPosition);
+                        normalize(&lightVec);
                         float l = dot(lightVec, estimateNormal(hit.hitPosition));
                         if (l > 1) l = 1; if (l < 0) l = 0; // Clamp l between 0 and 1
                         pixelColor = KDColor::RGB888(hit.hitColor.red()*l,hit.hitColor.green()*l,hit.hitColor.blue()*l);
@@ -169,15 +172,16 @@ namespace Raymarching
     }
 
     void RaymarchingScene::translateCamera(float3 vector) {
-        m_camPos = sum(m_camPos, vector);
+        add(&m_camPos, vector);
     }
 
-    void RaymarchingScene::rotateCamera(float angle) {
-        m_camYaw += angle;
+    void RaymarchingScene::rotateCamera(float yaw, float pitch) {
+        m_camYaw += yaw;
+        m_camPitch += pitch;
     }
 
-    float3 RaymarchingScene::getCameraVector(float angleOffset) {
-        return float3(sin((m_camYaw+angleOffset)*DEG_2_RAD), cos((m_camYaw+angleOffset)*DEG_2_RAD), 0);
+    float3 RaymarchingScene::getCameraVector(float yawOffset) {
+        return float3(sin((m_camYaw+yawOffset)*DEG_2_RAD), cos((m_camYaw+yawOffset)*DEG_2_RAD), 0);
     }
 
 }

@@ -55,14 +55,22 @@ bool RaymarchingViewController::handleEvent(Ion::Events::Event event) {
     m_scene->translateCamera(multiply(m_scene->getCameraVector(),-10));
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Exp) {
-    m_scene->rotateCamera(-10);
+    m_scene->rotateCamera(-5);
     m_scene->render(rect, true);
   } else if(event == Ion::Events::Log) {
-    m_scene->rotateCamera(10);
+    m_scene->rotateCamera(5);
     m_scene->render(rect, true);
+  } else if(event == Ion::Events::Toolbox) {
+    m_scene->rotateCamera(0, -5);
+    m_scene->render(rect, true);
+  } else if(event == Ion::Events::Sqrt) {
+    m_scene->rotateCamera(0, 5);
+    m_scene->render(rect, true);
+  } else {
+    return false;
   }
 
-  return false;
+  return true;
 }
 
 View * RaymarchingViewController::view() {

@@ -59,9 +59,10 @@ float3 abs(float3 x) {
     return x_abs;
 }
 
-float3 normalize(float3 vec) {
-    float magnitude = length(vec);
-    return float3(vec.x / magnitude, vec.y / magnitude, vec.z / magnitude);
+void normalize(float3 * vec) {
+    float3 _vec = *vec;
+    float magnitude = length(_vec);
+    *vec = float3(_vec.x / magnitude, _vec.y / magnitude, _vec.z / magnitude);
 }
 
 float3 multiply(float3 vec, float scalar) {
@@ -75,4 +76,8 @@ float dot(float3 a, float3 b) {
 bool checkerPattern(int x, int y, int size) {
 
     return (x % size*2 <size)^(y % size*2 <size);
+}
+
+void add(float3 * vec, float3 addend) {
+    *vec = sum(*vec, addend);
 }

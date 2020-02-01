@@ -29,9 +29,10 @@ float min(float a, float b);
 float lerp(float a, float b, float alpha);
 float3 multiply(float3 vec, float scalar);
 float3 difference(float3 a, float3 b);
-float3 sum(float3 a, float3 b);
 float3 abs(float3 x);
-float3 normalize(float3 vec);
+float3 sum(float3 a, float3 b);
+void add(float3 * vec, float3 addend);
+void normalize(float3 * vec);
 
 /* Used to texture an object with a checkerboard pattern. Returns true every other cell */
 bool checkerPattern(int x, int y, int size);
