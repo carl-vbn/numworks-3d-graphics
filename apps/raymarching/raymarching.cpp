@@ -18,26 +18,32 @@ namespace Raymarching
     }
 
     float cubeSD(float3 pos, float3 cubePos, float3 cubeSize) {
-        float3 o = difference(abs(difference(pos,cubePos)), cubeSize);
-        float ud = max(length(o),0);
-        float n = max(max(min(o.x,0),min(o.y,0)), min(o.z,0));
-        return ud+n;
+        float3 q = difference(abs(difference(pos,cubePos)), cubeSize);
+        return max(length(q),0) + min(max(q.x,max(q.y,q.z)),0.0);
     }
 
-    float RaymarchingScene::distanceFromGeometry(float3 pos, Sphere * nearestSpherePtr) {
-        if (m_loadedSphereCount < 1) {
+    float RaymarchingScene::distanceFromGeometry(float3 pos, RMObject * nearestSpherePtr) {
+        if (m_loadedObjectCount < 1) {
             return 0;
         }
 
 
-        Sphere nearestSphere;
+        RMObject nearestSphere;
         float minDist = RENDER_DISTANCE;
-        for (int i = 0; i<m_loadedSphereCount; i++) {
-            Sphere sphere = *(m_loadedSpheres+i);
-            float dist = sphereSD(pos, sphere.position, sphere.radius);
+        for (int i = 0; i<m_loadedObjectCount; i++) {
+            RMObject rm_obj = *(m_loadedObjects+i);
+            float dist = RENDER_DISTANCE;
+            switch (rm_obj.distanceFunction) {
+                case SPHERE_SDF:
+                    dist = sphereSD(pos, rm_obj.position, rm_obj.radius);
+                    break;
+                case CUBE_SDF:
+                    
+                    break;
+            }    
             if (dist < minDist) {
                 minDist = dist;
-                nearestSphere = sphere;
+                nearestSphere = rm_obj;
             }
         }
         
@@ -49,17 +55,19 @@ namespace Raymarching
 
     RaymarchingScene::RaymarchingScene(int scene) {
         if (scene == 0) {
-            m_loadedSpheres = new Sphere[3]{Sphere(135,150,0, 10, KDColorPurple),Sphere(160,150,0, 10),Sphere(185,150,0, 10, KDColorRed)};
-            m_loadedSphereCount = 3;
+            m_loadedObjects = new RMObject[3]{RMObject(CUBE_SDF, 135,150,0, 10, KDColorPurple),RMObject(SPHERE_SDF, 160,150,0, 10),RMObject(SPHERE_SDF, 185,150,0, 10, KDColorRed)};
+            m_loadedObjectCount = 3;
 
             m_camPos = float3(160,80,-3);
             m_lightPos = float3(180,80,-20);
         } else if (scene == 1) {
-            m_loadedSpheres = new Sphere[2]{Sphere(135,170,0, 20, KDColorGreen),Sphere(185,170,0, 20, KDColorBlue)};
-            m_loadedSphereCount = 2;
+            m_loadedObjects = new RMObject[2]{RMObject(SPHERE_SDF, 135,170,0, 20, KDColorGreen),RMObject(SPHERE_SDF, 185,170,0, 20, KDColorBlue)};
+            m_loadedObjectCount = 2;
 
             m_camPos = float3(160,80,-3);
             m_lightPos = float3(140,100,-20);
+        } else if (scene == 2) {
+
         }
         
         m_camYaw = 0;
@@ -67,7 +75,7 @@ namespace Raymarching
     }
 
     RaymarchingScene::~RaymarchingScene() {
-        delete[] m_loadedSpheres;
+        delete[] m_loadedObjects;
     }
 
     float3 RaymarchingScene::estimateNormal(float3 pos) {
@@ -88,7 +96,7 @@ namespace Raymarching
         int8_t steps = 0;
         float marchedDistance = 0;
         while (steps < MAX_STEPS && marchedDistance < RENDER_DISTANCE) {
-            Sphere nearestSphere;
+            RMObject nearestSphere;
             d = distanceFromGeometry(p, &nearestSphere);
             add(&p, multiply(direction, d));
             marchedDistance+= d;

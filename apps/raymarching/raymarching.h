@@ -1,6 +1,10 @@
 #include <ion/display.h>
 #include "math_utils.h"
 
+#define SPHERE_SDF 0
+#define CUBE_SDF 1
+#define PLANE_SDF 2
+
 namespace Raymarching {
 
     struct RaymarchHit {
@@ -15,46 +19,52 @@ namespace Raymarching {
         }
     };
     
-    struct Sphere {
+    struct RMObject {
+        int8_t distanceFunction;
         float3 position;
         float radius;
         KDColor color;
         bool checkerPattern;
 
-        Sphere() {
-            checkerPattern = true;
+        RMObject() {
+            
         }
 
-        Sphere(float3 pos, float r, KDColor c) {
+        RMObject(uint8_t df, float3 pos, float r, KDColor c) {
             position = pos;
             radius = r;
             color = c;
             checkerPattern = false;
+            distanceFunction = df;
         }
 
-        Sphere(float3 pos, float r) {
+        RMObject(uint8_t df, float3 pos, float r) {
             position = pos;
             radius = r;
             checkerPattern = true;
+            distanceFunction = df;
         }
 
-        Sphere(float px, float py, float pz, float r, KDColor c) {
+        RMObject(uint8_t df, float px, float py, float pz, float r, KDColor c) {
             position = float3(px,py,pz);
             radius = r; 
             color = c;
             checkerPattern = false;
+            distanceFunction = df;
         }
 
-        Sphere(float px, float py, float pz, float r) {
+        RMObject(uint8_t df, float px, float py, float pz, float r) {
             position = float3(px,py,pz);
             radius = r; 
             checkerPattern = true;
+            distanceFunction = df;
         }
 
     };
 
     float sphereSD(float3 pos, float3 spherePos, float sphereRadius);
-    float cubeSD(float3 pos, float3 cubePos, float3 cubeSize);
+    float cubeSD(float3 pos, float3 cubePos, float cubeSize);
+    //float planeSD(float3 pos, float planeHeight);
     
     class RaymarchingScene  {
         public:
@@ -71,10 +81,10 @@ namespace Raymarching {
             float m_camYaw;
             float m_camPitch;
             float3 m_lightPos;
-            Sphere * m_loadedSpheres;
-            int m_loadedSphereCount;
+            RMObject * m_loadedObjects;
+            int m_loadedObjectCount;
 
-            float distanceFromGeometry(float3 pos, Sphere * nearestSphere = nullptr);
+            float distanceFromGeometry(float3 pos, RMObject * nearestSphere = nullptr);
             float3 estimateNormal(float3 pos);
             RaymarchHit rayMarch(float3 origin, float3 direction);
 

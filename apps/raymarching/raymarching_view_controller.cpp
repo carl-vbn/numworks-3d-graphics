@@ -31,14 +31,14 @@ bool RaymarchingViewController::handleEvent(Ion::Events::Event event) {
     delete m_scene;
     m_scene = new Raymarching::RaymarchingScene(0);
     m_scene->render(rect, true);
-
-    return true;
   } else if (event == Ion::Events::Two) {
     delete m_scene;
     m_scene = new Raymarching::RaymarchingScene(1);
     m_scene->render(rect, true);
-
-    return true;
+  } else if (event == Ion::Events::Three) {
+    delete m_scene;
+    m_scene = new Raymarching::RaymarchingScene(2);
+    m_scene->render(rect, true);
 
   } else if (event == Ion::Events::EXE || event == Ion::Events::OK) {
     m_scene->render(rect, false);

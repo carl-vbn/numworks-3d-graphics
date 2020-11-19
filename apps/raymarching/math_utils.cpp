@@ -48,7 +48,6 @@ float3 sum(float3 a, float3 b) {
 
 
 float3 abs(float3 x) {
-    struct float3 x_abs = float3(x);
     if (x.x < 0)
         x.x = -x.x;
     if (x.y < 0)
@@ -56,7 +55,7 @@ float3 abs(float3 x) {
     if (x.z < 0)
         x.z = -x.z;
     
-    return x_abs;
+    return x;
 }
 
 void normalize(float3 * vec) {

@@ -8,7 +8,7 @@ This project is an unofficial mod and is **not** maintained by NumWorks.
 ## Installation
 To install this mod on your calculator, follow the instructions described on NumWorks' [Installing the SDK](https://www.numworks.com/resources/engineering/software/build/) page but clone this repository instead of [`numworks/epsilon`](https://github.com/numworks/epsilon).
 
-To install this mod alongside another epsilon fork, simply copy the `raymarching` folder from this repository into the `apps`folder of that fork, and flash the OS like you would normally do but make sure to add `raymarching` to the `EPSILON_APPS` variable when compiling. For example:
+To install this mod alongside another epsilon fork, simply copy the `raymarching` folder from this repository's `apps` folder into the `apps` folder of that fork before flashing the OS like you would normally do, and make sure to add `raymarching` to the `EPSILON_APPS` variable when compiling. For example:
 
     make [PLATFORM=device|simulator] EPSILON_APPS='calculation graph code [other_apps] raymarching settings'
 
